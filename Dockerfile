@@ -23,7 +23,6 @@ RUN apk -U upgrade && \
   --with github.com/porech/caddy-maxmind-geolocation \
   --with github.com/caddyserver/transform-encoder \
   --with github.com/caddyserver/replace-response \
-  --with github.com/imgk/caddy-trojan \
   mkdir -p /config
 
 FROM casjaysdev/php:latest as php
