@@ -6,7 +6,7 @@ ENV XDG_DATA_HOME /data
 RUN set -e \
   export XCADDY_SETCAP=1; \
   export version=$(curl -s "https://api.github.com/repos/caddyserver/caddy/releases/latest" | jq -r .tag_name | grep '^' || exit 5); \
-  echo ">>>>>>>>>>>>>>> ${version} ###############" 
+  echo ">>>>>>>>>>>>>>> ${version} ###############"
 
 RUN apk -U upgrade && \
   go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest || exit 10; \
@@ -21,7 +21,7 @@ RUN apk -U upgrade && \
   --with github.com/hairyhenderson/caddy-teapot-module \
   --with github.com/kirsch33/realip \
   --with github.com/porech/caddy-maxmind-geolocation \
-  --with github.com/caddyserver/format-encoder \
+  --with github.com/caddyserver/transform-encoder \
   --with github.com/caddyserver/replace-response \
   --with github.com/imgk/caddy-trojan
 
@@ -33,7 +33,7 @@ COPY ./data/htdocs/. /usr/share/caddy/
 COPY ./bin/entrypoint-caddy.sh /usr/local/bin/entrypoint-caddy.sh
 
 FROM php
-ARG BUILD_DATE="$(date +'%Y-%m-%d %H:%M')" 
+ARG BUILD_DATE="$(date +'%Y-%m-%d %H:%M')"
 LABEL \
   org.label-schema.name="caddy" \
   org.label-schema.description="Alpine based image with caddy and php8." \
@@ -46,7 +46,7 @@ LABEL \
   org.label-schema.vcs-type="Git" \
   org.label-schema.schema-version="1.0" \
   org.label-schema.vendor="CasjaysDev" \
-  maintainer="CasjaysDev <docker-admin@casjaysdev.com>" 
+  maintainer="CasjaysDev <docker-admin@casjaysdev.com>"
 
 EXPOSE 1-65535
 
