@@ -23,11 +23,12 @@ RUN apk -U upgrade && \
   --with github.com/porech/caddy-maxmind-geolocation \
   --with github.com/caddyserver/transform-encoder \
   --with github.com/caddyserver/replace-response \
-  --with github.com/imgk/caddy-trojan
+  --with github.com/imgk/caddy-trojan \
+  mkdir -p /config
 
 FROM casjaysdev/php:latest as php
 COPY --from=builder /caddy /usr/bin/caddy
-COPY ./config/Caddyfile /etc/caphpddy/Caddyfile
+COPY ./config/Caddyfile /etc/caddy/Caddyfile
 COPY ./data/htdocs/. /usr/share/caddy/
 
 COPY ./bin/entrypoint-caddy.sh /usr/local/bin/entrypoint-caddy.sh
