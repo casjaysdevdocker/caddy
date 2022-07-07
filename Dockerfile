@@ -22,8 +22,7 @@ RUN apk -U upgrade && \
   --with github.com/kirsch33/realip \
   --with github.com/porech/caddy-maxmind-geolocation \
   --with github.com/caddyserver/transform-encoder \
-  --with github.com/caddyserver/replace-response \
-  mkdir -p /config
+  --with github.com/caddyserver/replace-response
 
 FROM casjaysdev/php:latest as php
 COPY --from=builder /caddy /usr/bin/caddy
