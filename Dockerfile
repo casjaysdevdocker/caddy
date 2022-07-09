@@ -1,4 +1,4 @@
-FROM casjaysdev/golang:latest AS builder
+FROM casjaysdevdocker/golang:latest AS builder
 
 ENV XDG_CONFIG_HOME /config
 ENV XDG_DATA_HOME /data
@@ -24,7 +24,7 @@ RUN apk -U upgrade && \
   --with github.com/caddyserver/transform-encoder \
   --with github.com/caddyserver/replace-response
 
-FROM casjaysdev/php:latest as php
+FROM casjaysdevdocker/php:latest as php
 COPY --from=builder /caddy /usr/bin/caddy
 COPY ./config/Caddyfile /etc/caddy/Caddyfile
 COPY ./data/htdocs/. /usr/share/caddy/
@@ -36,12 +36,12 @@ ARG BUILD_DATE="$(date +'%Y-%m-%d %H:%M')"
 LABEL \
   org.label-schema.name="caddy" \
   org.label-schema.description="Alpine based image with caddy and php8." \
-  org.label-schema.url="https://github.com/casjaysdev/caddy" \
-  org.label-schema.vcs-url="https://github.com/casjaysdev/caddy" \
+  org.label-schema.url="https://hub.docker.com/r/casjaysdevdocker/caddy" \
+  org.label-schema.vcs-url="https://github.com/casjaysdevdocker/caddy" \
   org.label-schema.build-date=$BUILD_DATE \
   org.label-schema.version=$BUILD_DATE \
   org.label-schema.vcs-ref=$BUILD_DATE \
-  org.label-schema.license="MIT" \
+  org.label-schema.license="WTFPL" \
   org.label-schema.vcs-type="Git" \
   org.label-schema.schema-version="1.0" \
   org.label-schema.vendor="CasjaysDev" \
