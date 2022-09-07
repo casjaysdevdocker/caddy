@@ -1,21 +1,22 @@
-FROM casjaysdevdocker/golang:latest AS builder
+FROM golang:1.19-alpine as builder
 
 ENV XDG_CONFIG_HOME /config
 ENV XDG_DATA_HOME /data
 
 RUN set -e \
   export XCADDY_SETCAP=1; \
-  export version=$(curl -s "https://api.github.com/repos/caddyserver/caddy/releases/latest" | jq -r .tag_name | grep '^' || exit 5); \
+  export version=$(curl -q -LSsf "https://api.github.com/repos/caddyserver/caddy/releases/latest" | jq -r .tag_name | grep '^' || exit 5); \
   echo ">>>>>>>>>>>>>>> ${version} ###############"
 
 RUN apk -U upgrade && \
   go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest || exit 10; \
-  xcaddy build ${version} --output /caddy \
+  xcaddy build ${version} \
+  --output /caddy \
   --with github.com/caddy-dns/route53 \
   --with github.com/caddy-dns/cloudflare \
   --with github.com/caddy-dns/alidns \
   --with github.com/caddy-dns/dnspod \
-  --with github.com/caddy-dns/gandi \
+  --with github.com/caddy-dns/rfc2136 \
   --with github.com/abiosoft/caddy-exec \
   --with github.com/greenpau/caddy-trace \
   --with github.com/hairyhenderson/caddy-teapot-module \
