@@ -52,6 +52,7 @@ EXPOSE 1-65535
 WORKDIR /data/htdocs
 VOLUME [ "/data", "/config" ]
 
+ENTRYPOINT [ "tini", "--" ]
 HEALTHCHECK CMD ["/usr/local/bin/entrypoint-caddy.sh", "healthcheck"]
-
 ENTRYPOINT ["/usr/local/bin/entrypoint-caddy.sh"]
+
