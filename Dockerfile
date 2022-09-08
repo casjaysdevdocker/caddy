@@ -9,6 +9,7 @@ RUN set -e \
   echo ">>>>>>>>>>>>>>> ${version} ###############"
 
 RUN apk -U upgrade && \
+  apk add jq --no-cache && \
   go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest || exit 10; \
   xcaddy build ${version} \
   --output /caddy \
