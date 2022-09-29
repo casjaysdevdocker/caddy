@@ -18,8 +18,6 @@ RUN apk -U upgrade && \
   --with github.com/caddy-dns/alidns \
   --with github.com/caddy-dns/dnspod \
   --with github.com/caddy-dns/rfc2136 \
-  --with github.com/abiosoft/caddy-exec \
-  --with github.com/greenpau/caddy-trace \
   --with github.com/hairyhenderson/caddy-teapot-module \
   --with github.com/kirsch33/realip \
   --with github.com/porech/caddy-maxmind-geolocation \
