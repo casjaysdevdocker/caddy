@@ -53,6 +53,6 @@ WORKDIR /data/htdocs
 VOLUME [ "/data", "/config" ]
 
 ENTRYPOINT [ "tini", "--" ]
-HEALTHCHECK CMD ["/usr/local/bin/entrypoint-caddy.sh", "healthcheck"]
+HEALTHCHECK --interval=15s --timeout=3s CMD ["/usr/local/bin/entrypoint-caddy.sh", "healthcheck"]
 ENTRYPOINT ["/usr/local/bin/entrypoint-caddy.sh"]
 
