@@ -68,8 +68,8 @@ RUN echo 'Running cleanup' ; \
 FROM scratch
 
 ARG \
-  SERVICE_PORT="" \
-  EXPOSE_PORTS="1-65535" \
+  SERVICE_PORT="80" \
+  EXPOSE_PORTS="80 2019" \
   PHP_SERVER="caddy" \
   NODE_VERSION="system" \
   NODE_MANAGER="system" \
