@@ -72,7 +72,7 @@ CONTAINER_IP_ADDRESS="$(ip a 2>/dev/null | grep 'inet' | grep -v '127.0.0.1' | a
 # Overwrite variables
 #SERVICE_PORT=""
 SERVICE_NAME="caddy"
-SERVICE_COMMAND="$SERVICE_NAME -conf /etc/caddy/Caddyfile"
+SERVICE_COMMAND="$SERVICE_NAME run --config /config/caddy/Caddyfile"
 export exec_message="Starting $SERVICE_NAME on $CONTAINER_IP_ADDRESS:$SERVICE_PORT"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Pre copy commands

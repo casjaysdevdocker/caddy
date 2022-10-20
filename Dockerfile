@@ -2,7 +2,7 @@ FROM golang:1.19-alpine AS caddy
 ENV XDG_CONFIG_HOME /config
 ENV XDG_DATA_HOME /data
 
-RUN set -e \
+RUN set -ex \
   export XCADDY_SETCAP=1; \
   export version=$(curl -q -LSsf "https://api.github.com/repos/caddyserver/caddy/releases/latest" | jq -r .tag_name | grep '^' || exit 5); \
   echo ">>>>>>>>>>>>>>> ${version} ###############"
