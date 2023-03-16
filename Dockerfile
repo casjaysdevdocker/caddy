@@ -34,7 +34,6 @@ RUN set -ex \
   go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest || exit 10; \
   export XCADDY_SETCAP=1; xcaddy build ${version} \
   --output /usr/local/bin/caddy \
-  --with github.com/kirsch33/realip \
   --with github.com/caddy-dns/rfc2136 \
   --with github.com/caddy-dns/route53 \
   --with github.com/caddy-dns/cloudflare \
