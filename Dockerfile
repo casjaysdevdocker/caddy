@@ -23,7 +23,7 @@ ARG USER="root"
 ARG DISTRO_VERSION="${IMAGE_VERSION}"
 ARG BUILD_VERSION="${DISTRO_VERSION}"
 
-FROM golang:alpine AS caddy
+FROM golang:1.19-alpine AS caddy
 ENV XDG_CONFIG_HOME /config
 ENV XDG_DATA_HOME /data
 
