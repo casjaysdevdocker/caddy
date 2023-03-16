@@ -2,6 +2,6 @@
 :REPLACE_SERVER_PORT {
   root * /data/htdocs/www
   file_server
-  #reverse_proxy localhost:8080
-  #php_fastcgi localhost:9000
+  php_fastcgi localhost:9000 
+  try_files {path} index.html index.html.var index.php index.cgi index.asp index.aspx index.pl index.aspx Default.aspx default.aspx index.shtml awstats.pl index.unknown.php index.default.php index.txt index.json =404
 }

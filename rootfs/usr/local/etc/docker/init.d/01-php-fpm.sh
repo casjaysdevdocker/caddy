@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
-SCRIPT_NAME="$(basename "$0" 2>/dev/null)"
 [ "$DEBUGGER" = "on" ] && echo "Enabling debugging" && set -o pipefail -x$DEBUGGER_OPTIONS || set -o pipefail
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export PATH="/usr/local/etc/docker/bin:/usr/local/bin:/usr/bin:/usr/sbin:/bin:/sbin"
@@ -23,41 +22,49 @@ done
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute command variables
-WORKDIR=""                                        # set working directory
-SERVICE_UID="0"                                   # set the user id
-SERVICE_USER="root"                               # execute command as another user
-SERVICE_PORT=""                                   # port which service is listening on
-EXEC_CMD_BIN="caddy"                              # command to execute
-EXEC_CMD_ARGS="run --config /etc/caddy/Caddyfile" # command arguments
-PRE_EXEC_MESSAGE=""                               # Show message before execute
+WORKDIR=""                                                                              # set working directory
+SERVICE_UID="0"                                                                         # set the user id
+SERVICE_USER="root"                                                                     # execute command as another user
+SERVICE_PORT="9000"                                                                     # port which service is listening on
+EXEC_CMD_BIN="php-fpm"                                                                  # command to execute
+EXEC_CMD_ARGS="--allow-to-run-as-root --nodaemonize --fpm-config /etc/php/php-fpm.conf" # command arguments
+PRE_EXEC_MESSAGE=""                                                                     # Show message before execute
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Other variables that are needed
-etc_dir="/etc/caddy"
-conf_dir="/config/caddy"
+data_dir="/data"
+conf_dir="/config/php"
 www_dir="${WWW_ROOT_DIR:-/data/htdocs}"
-caddy_bin="$(type -P 'caddy' || type -P 'Caddy')"
+etc_dir="${PHP_INI_DIR:-$(__find_php_ini)}"
+php_bin="${PHP_BIN_DIR:-$(__find_php_bin)}"
+php_user="${SERVICE_USER//root/daemon}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # use this function to update config files - IE: change port
 __update_conf_files() {
-  echo "Initializing caddy web server in $conf_dir"
-  [ -d "$etc_dir" ] || mkdir -p "$etc_dir" "$conf_dir"
-  [ -d "$conf_dir" ] && cp -Rf "$conf_dir/." "$etc_dir/" || cp -Rf "$etc_dir/." "$conf_dir/"
-  #
-  [ -d "/data/logs/caddy" ] || mkdir -p "/data/logs/caddy"
-  chmod -Rf 777 "/data/logs/caddy"
-  #
-  [ -d "$www_dir" ] || mkdir -p "$www_dir"
-  [ -d "$www_dir/www/health" ] || mkdir -p "$www_dir/www/health"
-  [ -f "$www_dir/www/health/index.txt" ] || echo 'ok' >"$www_dir/www/health/index.txt"
-  [ -f "$www_dir/www/health/index.json" ] || echo '{ "status": "ok" }' >"$www_dir/www/health/index.json"
-  #
-  __replace "REPLACE_SERVER_PORT" "${SERVICE_PORT:-80}" "$etc_dir/Caddyfile"
-  __replace "REPLACE_SERVER_NAME" "${SERVER_NAME:-$HOSTNAME}" "$etc_dir/Caddyfile"
-  __replace "REPLACE_SERVER_ADMIN" "${SERVER_ADMIN:-root@$SERVER_NAME}" "$etc_dir/Caddyfile"
-  [ -f "$www_dir/www/index.php" ] && __replace "REPLACE_SERVER_SOFTWARE" "caddy" "$www_dir/www/index.php"
-  if [ -z "$PHP_BIN_DIR" ]; then
-    [ -f "$www_dir/www/info.php" ] && echo "PHP support is not enabled" >"$www_dir/www/info.php"
-    [ -f "$etc_dir/conf.d/php-fpm.conf" ] && echo "# PHP support is not enabled" >"$etc_dir/conf.d/php-fpm.conf"
+  echo "Initializing php in $conf_dir"
+  if [ -n "$php_bin" ]; then
+    [ -d "/data/logs/php" ] || mkdir -p "/data/logs/php"
+    chmod -Rf 777 "$data_dir/logs/php" /var/tmp
+    if [ "$etc_dir" != "/etc/php" ]; then
+      [ -d "/etc/php" ] && rm -Rf "/etc/php"
+      ln -sf "$etc_dir" "/etc/php"
+    fi
+    #
+    [ -d "$etc_dir" ] || mkdir -p "$etc_dir"
+    [ -d "$conf_dir/conf.d" ] && rm -R $etc_dir/conf.d/*
+    [ -d "$conf_dir" ] && cp -Rf "$conf_dir/." "$etc_dir/"
+    #
+    if [ -f "$www_dir/www/index.html" ] && [ -f "$www_dir/www/index.php" ]; then
+      [ -f "$www_dir/www/index.html" ] && rm -Rf "$www_dir/www/index.html"
+    fi
+    chmod -Rf 777 "/data/logs/php"
+    #
+    sed -i 's|user.*=.*|user = '$user'|g' "$etc_dir"/*/www.conf
+    sed -i 's|group.*=.*|group = '$user'|g' "$etc_dir"/*/www.conf
+    chown -Rf "$user" "$etc_dir" "$data_dir/logs/php" /var/tmp
+  else
+    echo "php can not be found"
+    [ -f "$www_dir/info.php" ] && echo "PHP support is not enabled" >"$www_dir/info.php"
+    exit 1
   fi
 
   return 0
@@ -71,6 +78,7 @@ __update_ssl_conf() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # function to run before executing
 __pre_execute() {
+  grep -s -q "$php_user:" "/etc/passwd" && chown -Rf $php_user:$php_user "$etc_dir" "/data/logs/php" && echo "changed ownership to $user"
 
   return 0
 }
