@@ -28,12 +28,10 @@ ENV XDG_CONFIG_HOME /config
 ENV XDG_DATA_HOME /data
 
 RUN set -ex \
+  apk -U upgrade && apk add jq curl --no-cache ; \
   export XCADDY_SETCAP=1; \
   export version=$(curl -q -LSsf "https://api.github.com/repos/caddyserver/caddy/releases/latest" | jq -r .tag_name | grep '^' || exit 5); \
-  echo ">>>>>>>>>>>>>>> ${version} ###############"
-
-RUN apk -U upgrade && \
-  apk add jq --no-cache && \
+  echo ">>>>>>>>>>>>>>> ${version} ###############" ; \
   go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest || exit 10; \
   xcaddy build ${version} \
   --output /caddy \
