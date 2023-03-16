@@ -29,20 +29,16 @@ ENV XDG_DATA_HOME /data
 
 RUN set -ex \
   apk -U upgrade && apk add jq curl --no-cache ; \
-  export XCADDY_SETCAP=1; \
-  export version=$(curl -q -LSsf "https://api.github.com/repos/caddyserver/caddy/releases/latest" | jq -r .tag_name | grep '^' || exit 5); \
+  export version=$(curl -q -LSsf "https://api.github.com/repos/caddyserver/caddy/releases/latest" | jq -r .tag_name | grep '^'); \
   echo ">>>>>>>>>>>>>>> ${version} ###############" ; \
   go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest || exit 10; \
-  xcaddy build ${version} \
-  --output /caddy \
+  export XCADDY_SETCAP=1; xcaddy build ${version} \
+  --output /usr/local/bin/caddy \
   --with github.com/kirsch33/realip \
-  --with github.com/caddy-dns/alidns \
-  --with github.com/caddy-dns/dnspod \
   --with github.com/caddy-dns/rfc2136 \
   --with github.com/caddy-dns/route53 \
   --with github.com/caddy-dns/cloudflare \
   --with github.com/caddyserver/replace-response \
-  --with github.com/caddyserver/transform-encoder \
   --with github.com/porech/caddy-maxmind-geolocation \
   --with github.com/hairyhenderson/caddy-teapot-module
 
