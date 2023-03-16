@@ -16,29 +16,27 @@ ARG IMAGE_VERSION="edge"
 ARG CONTAINER_VERSION="${IMAGE_VERSION}"
 
 ARG SERVICE_PORT="80"
-ARG EXPOSE_PORTS="80"
+ARG EXPOSE_PORTS="80 2019"
 ARG PHP_VERSION="php8"
 
 ARG USER="root"
 ARG DISTRO_VERSION="${IMAGE_VERSION}"
 ARG BUILD_VERSION="${DISTRO_VERSION}"
 
-FROM golang:1.19-alpine AS caddy
+FROM golang:latest AS caddy
 ENV XDG_CONFIG_HOME /config
 ENV XDG_DATA_HOME /data
 
 RUN set -ex \
-  apk -U upgrade && apk add jq curl --no-cache ; \
+  apk -U upgrade && apk add --no-cache jq curl libcap ; \
   export version=$(curl -q -LSsf "https://api.github.com/repos/caddyserver/caddy/releases/latest" | jq -r .tag_name | grep '^'); \
   echo ">>>>>>>>>>>>>>> ${version} ###############" ; \
   go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest || exit 10; \
   export XCADDY_SETCAP=1; xcaddy build ${version} \
   --output /usr/local/bin/caddy \
   --with github.com/caddy-dns/rfc2136 \
-  --with github.com/caddy-dns/route53 \
   --with github.com/caddy-dns/cloudflare \
-  --with github.com/caddyserver/replace-response \
-  --with github.com/porech/caddy-maxmind-geolocation \
+  --with github.com/caddyserver/nginx-adapter \
   --with github.com/hairyhenderson/caddy-teapot-module
 
 FROM tianon/gosu:latest AS gosu
@@ -62,7 +60,7 @@ ARG DISTRO_VERSION
 ARG PHP_VERSION
 
 ARG PACK_LIST="bash bash-completion git curl wget sudo iproute2 ssmtp openssl jq ca-certificates tzdata mailcap ncurses util-linux pciutils usbutils coreutils binutils findutils grep rsync zip certbot tini certbot py3-pip procps net-tools coreutils sed gawk grep attr findutils readline lsof less curl unzip \
-  jq composer ${PHP_VERSION}-apache2 ${PHP_VERSION}-bcmath ${PHP_VERSION}-bz2 ${PHP_VERSION}-calendar ${PHP_VERSION}-cgi \
+  jq composer ${PHP_VERSION}-bcmath ${PHP_VERSION}-bz2 ${PHP_VERSION}-calendar ${PHP_VERSION}-cgi \
   ${PHP_VERSION}-common ${PHP_VERSION}-ctype ${PHP_VERSION}-curl ${PHP_VERSION}-dba ${PHP_VERSION}-dev \
   ${PHP_VERSION}-dom ${PHP_VERSION}-embed ${PHP_VERSION}-enchant ${PHP_VERSION}-exif ${PHP_VERSION}-ffi \
   ${PHP_VERSION}-fileinfo ${PHP_VERSION}-fpm ${PHP_VERSION}-ftp ${PHP_VERSION}-gd ${PHP_VERSION}-gettext \
