@@ -23,13 +23,13 @@ done
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute command variables
-WORKDIR=""                                                            # set working directory
-SERVICE_UID="0"                                                       # set the user id
-SERVICE_USER="root"                                                   # execute command as another user
-SERVICE_PORT=""                                                       # port which service is listening on
-EXEC_CMD_BIN="caddy"                                                  # command to execute
-EXEC_CMD_ARGS="run --config /etc/caddy/Caddyfile --adapter caddyfile" # command arguments
-PRE_EXEC_MESSAGE=""                                                   # Show message before execute
+WORKDIR=""                                        # set working directory
+SERVICE_UID="0"                                   # set the user id
+SERVICE_USER="root"                               # execute command as another user
+SERVICE_PORT=""                                   # port which service is listening on
+EXEC_CMD_BIN="caddy"                              # command to execute
+EXEC_CMD_ARGS="run --config /etc/caddy/Caddyfile" # command arguments
+PRE_EXEC_MESSAGE=""                               # Show message before execute
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Other variables that are needed
 etc_dir="/etc/caddy"

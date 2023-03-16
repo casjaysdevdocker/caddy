@@ -64,8 +64,6 @@
 
     SERVER:
     <?php echo $_SERVER['SERVER_SOFTWARE']; ?> <br />
-    SERVER Address:
-    <?php echo $_SERVER['SERVER_ADDR']; ?> <br />
 
   </h2>
   <br /><br />

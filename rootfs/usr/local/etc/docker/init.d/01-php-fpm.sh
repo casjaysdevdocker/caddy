@@ -24,7 +24,7 @@ done
 # execute command variables
 WORKDIR=""                                                                              # set working directory
 SERVICE_UID="0"                                                                         # set the user id
-SERVICE_USER="root"                                                                     # execute command as another user
+SERVICE_USER="daemon"                                                                   # execute command as another user
 SERVICE_PORT="9000"                                                                     # port which service is listening on
 EXEC_CMD_BIN="php-fpm"                                                                  # command to execute
 EXEC_CMD_ARGS="--allow-to-run-as-root --nodaemonize --fpm-config /etc/php/php-fpm.conf" # command arguments
@@ -36,7 +36,7 @@ conf_dir="/config/php"
 www_dir="${WWW_ROOT_DIR:-/data/htdocs}"
 etc_dir="${PHP_INI_DIR:-$(__find_php_ini)}"
 php_bin="${PHP_BIN_DIR:-$(__find_php_bin)}"
-php_user="${SERVICE_USER//root/daemon}"
+php_user="$SERVICE_USER"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # use this function to update config files - IE: change port
 __update_conf_files() {
