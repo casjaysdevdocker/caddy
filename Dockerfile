@@ -31,8 +31,10 @@ RUN set -ex \
   apk -U upgrade && apk add --no-cache jq curl libcap ; \
   export version=$(curl -q -LSsf "https://api.github.com/repos/caddyserver/caddy/releases/latest" | jq -r .tag_name | grep '^'); \
   echo ">>>>>>>>>>>>>>> ${version} ###############" ; \
-  go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest || exit 10; \
-  export XCADDY_SETCAP=1; xcaddy build ${version} \
+  go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest || exit 10 ; \
+  export XCADDY_SETCAP=1 ; \
+  export GO111MODULE=auto ; \
+  xcaddy build ${version} \
   --output /usr/local/bin/caddy \
   --with github.com/caddy-dns/rfc2136 \
   --with github.com/caddy-dns/cloudflare \
