@@ -23,12 +23,12 @@ ARG USER="root"
 ARG DISTRO_VERSION="${IMAGE_VERSION}"
 ARG BUILD_VERSION="${DISTRO_VERSION}"
 
-FROM golang:latest AS caddy
+FROM golang:alpine AS caddy
 ENV XDG_CONFIG_HOME /config
 ENV XDG_DATA_HOME /data
 
 RUN set -ex \
-  apt update && apt install -yy -q jq curl libcap ; \
+  apk -U upgrade && apk add --no-cache jq curl libcap ; \
   export version=$(curl -q -LSsf "https://api.github.com/repos/caddyserver/caddy/releases/latest" | jq -r .tag_name | grep '^'); \
   echo ">>>>>>>>>>>>>>> ${version} ###############" ; \
   go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest || exit 10 ; \
