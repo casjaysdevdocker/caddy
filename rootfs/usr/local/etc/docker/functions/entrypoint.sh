@@ -505,8 +505,10 @@ __create_service_user() {
   grep -sq "^$create_user:" "/etc/passwd" && grep -sq "^$create_group:" "/etc/group" && return
   [ "$create_user" = "root" ] && [ "$create_group" = "root" ] && return 0
   if [ "$RUNAS_USER" != "root" ] && [ "$RUNAS_USER" != "" ]; then
-    [ "$create_user" = "root" ] && create_user="$RUNAS_USER"
-    [ "$create_group" = "root" ] && create_group="$RUNAS_USER"
+    create_user="$RUNAS_USER"
+    create_group="$RUNAS_USER"
+    create_uid="${create_uid:-1000}"
+    create_gid="${create_gid:-1000}"
   fi
   create_uid="$(__get_uid "$set_user" || echo "$create_uid")"
   create_gid="$(__get_gid "$set_user" || echo "$create_gid")"
@@ -526,7 +528,7 @@ __create_service_user() {
   fi
   if ! __check_for_user "$create_user"; then
     echo "creating system user $create_user"
-    useradd --force --system -u $create_uid -g $create_group -c "Account for $create_user" -d "$create_home_dir" -s /bin/false $create_user 2>/dev/stderr | tee -p -a "$LOG_DIR/init.txt" >/dev/null
+    useradd --system -u $create_uid -g $create_group -c "Account for $create_user" -d "$create_home_dir" -s /bin/false $create_user 2>/dev/stderr | tee -p -a "$LOG_DIR/init.txt" >/dev/null
   fi
   grep -qs "$create_group" "/etc/group" || exitStatus=$((exitCode + 1))
   grep -qs "$create_user" "/etc/passwd" || exitStatus=$((exitCode + 1))
