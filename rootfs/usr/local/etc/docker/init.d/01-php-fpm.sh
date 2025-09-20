@@ -28,6 +28,18 @@ SERVICE_USER="daemon"                                                           
 SERVICE_PORT="9000"                                                                     # port which service is listening on
 EXEC_CMD_BIN="php-fpm"                                                                  # command to execute
 EXEC_CMD_ARGS="--allow-to-run-as-root --nodaemonize --fpm-config /etc/php/php-fpm.conf" # command arguments
+# Function to exit appropriately based on context
+__script_exit() {
+  local exit_code="${1:-0}"
+  if [ "${BASH_SOURCE[0]}" != "${0}" ]; then
+    # Script is being sourced - use return
+    return "$exit_code"
+  else
+    # Script is being executed - use exit
+    exit "$exit_code"
+  fi
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PRE_EXEC_MESSAGE=""                                                                     # Show message before execute
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Other variables that are needed
@@ -64,7 +76,7 @@ __update_conf_files() {
   else
     echo "php can not be found"
     [ -f "$www_dir/info.php" ] && echo "PHP support is not enabled" >"$www_dir/info.php"
-    exit 1
+    __script_exit 1
   fi
 
   return 0
@@ -181,4 +193,4 @@ else
   fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-exit $SERVICE_EXIT_CODE
+__script_exit $SERVICE_EXIT_CODE

@@ -28,6 +28,18 @@ SERVICE_UID="0"                                   # set the user id
 SERVICE_USER="root"                               # execute command as another user
 SERVICE_PORT=""                                   # port which service is listening on
 EXEC_CMD_BIN="caddy"                              # command to execute
+# Function to exit appropriately based on context
+__script_exit() {
+  local exit_code="${1:-0}"
+  if [ "${BASH_SOURCE[0]}" != "${0}" ]; then
+    # Script is being sourced - use return
+    return "$exit_code"
+  else
+    # Script is being executed - use exit
+    exit "$exit_code"
+  fi
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 EXEC_CMD_ARGS="run --config /etc/caddy/Caddyfile" # command arguments
 PRE_EXEC_MESSAGE=""                               # Show message before execute
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -173,4 +185,4 @@ else
   fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-exit $SERVICE_EXIT_CODE
+__script_exit $SERVICE_EXIT_CODE
