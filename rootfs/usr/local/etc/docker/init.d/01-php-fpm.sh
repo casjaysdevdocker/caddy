@@ -128,16 +128,25 @@ __pcheck() { [ -n "$(type -P pgrep 2>/dev/null)" ] && pgrep -x "$1" &>/dev/null 
 __pgrep() { __pcheck "${1:-EXEC_CMD_BIN}" || __ps aux 2>/dev/null | grep -Fw " ${1:-$EXEC_CMD_BIN}" | grep -qv ' grep' | grep '^' && return 0 || return 10; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Allow ENV_ variable
-[ -f "/config/env/${SERVICE_NAME:-$SCRIPT_NAME}.sh" ] && "/config/env/${SERVICE_NAME:-$SCRIPT_NAME}.sh" # Import env file
+# Import env file
+[ -f "/config/env/${SERVICE_NAME:-$SCRIPT_NAME}.sh" ] && "/config/env/${SERVICE_NAME:-$SCRIPT_NAME}.sh"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-WORKDIR="${ENV_WORKDIR:-$WORKDIR}"                            # change to directory
-SERVICE_USER="${ENV_SERVICE_USER:-$SERVICE_USER}"             # execute command as another user
-SERVICE_UID="${ENV_SERVICE_UID:-$SERVICE_UID}"                # set the user id
-SERVICE_PORT="${ENV_SERVICE_PORT:-$SERVICE_PORT}"             # port which service is listening on
-EXEC_CMD_BIN="${ENV_EXEC_CMD_BIN:-$EXEC_CMD_BIN}"             # command to execute
-EXEC_CMD_ARGS="${ENV_EXEC_CMD_ARGS:-$EXEC_CMD_ARGS}"          # command arguments
-PRE_EXEC_MESSAGE="${ENV_PRE_EXEC_MESSAGE:-$PRE_EXEC_MESSAGE}" # Show message before execute
-SERVICE_EXIT_CODE=0                                           # default exit code
+# change to directory
+WORKDIR="${ENV_WORKDIR:-$WORKDIR}"
+# execute command as another user
+SERVICE_USER="${ENV_SERVICE_USER:-$SERVICE_USER}"
+# set the user id
+SERVICE_UID="${ENV_SERVICE_UID:-$SERVICE_UID}"
+# port which service is listening on
+SERVICE_PORT="${ENV_SERVICE_PORT:-$SERVICE_PORT}"
+# command to execute
+EXEC_CMD_BIN="${ENV_EXEC_CMD_BIN:-$EXEC_CMD_BIN}"
+# command arguments
+EXEC_CMD_ARGS="${ENV_EXEC_CMD_ARGS:-$EXEC_CMD_ARGS}"
+# Show message before execute
+PRE_EXEC_MESSAGE="${ENV_PRE_EXEC_MESSAGE:-$PRE_EXEC_MESSAGE}"
+# default exit code
+SERVICE_EXIT_CODE=0
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 printf '%s\n' "# - - - Attempting to start $EXEC_CMD_BIN - - - #"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
