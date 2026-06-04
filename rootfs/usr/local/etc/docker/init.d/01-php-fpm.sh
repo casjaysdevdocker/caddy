@@ -56,23 +56,30 @@ __update_conf_files() {
   if [ -n "$php_bin" ]; then
     [ -d "/data/logs/php" ] || mkdir -p "/data/logs/php"
     chmod -Rf 777 "$data_dir/logs/php" /var/tmp
-    if [ "$etc_dir" != "/etc/php" ]; then
-      [ -d "/etc/php" ] && rm -Rf "/etc/php"
-      ln -sf "$etc_dir" "/etc/php"
+    # Seed /config/php from discovered php etc dir on first start (copy only)
+    __init_service_conf "$conf_dir" "$etc_dir"
+    # Symlink /etc/php -> /config/php so /etc always reflects user config
+    if [ ! -L "$etc_dir" ]; then
+      rm -rf "$etc_dir"
+      ln -sf "$conf_dir" "$etc_dir"
     fi
-    #
-    [ -d "$etc_dir" ] || mkdir -p "$etc_dir"
-    [ -d "$conf_dir/conf.d" ] && rm -R $etc_dir/conf.d/*
-    [ -d "$conf_dir" ] && cp -Rf "$conf_dir/." "$etc_dir/"
+    # Also normalize /etc/php if etc_dir differs (distros vary)
+    if [ "$etc_dir" != "/etc/php" ] && [ ! -L "/etc/php" ]; then
+      ln -sf "$conf_dir" "/etc/php"
+    fi
+    # Flat /etc/ symlinks so /etc/php.ini, /etc/php-fpm.conf, /etc/php-fpm.d always exist
+    [ -L "/etc/php.ini" ] || [ -e "/etc/php.ini" ] || ln -sf "/etc/php/php.ini" "/etc/php.ini"
+    [ -L "/etc/php-fpm.conf" ] || [ -e "/etc/php-fpm.conf" ] || ln -sf "/etc/php/php-fpm.conf" "/etc/php-fpm.conf"
+    [ -L "/etc/php-fpm.d" ] || [ -e "/etc/php-fpm.d" ] || ln -sf "/etc/php/php-fpm.d" "/etc/php-fpm.d"
     #
     if [ -f "$www_dir/www/index.html" ] && [ -f "$www_dir/www/index.php" ]; then
-      [ -f "$www_dir/www/index.html" ] && rm -Rf "$www_dir/www/index.html"
+      rm -Rf "$www_dir/www/index.html"
     fi
     chmod -Rf 777 "/data/logs/php"
     #
-    sed -i 's|user.*=.*|user = '$user'|g' "$etc_dir"/*/www.conf
-    sed -i 's|group.*=.*|group = '$user'|g' "$etc_dir"/*/www.conf
-    chown -Rf "$user" "$etc_dir" "$data_dir/logs/php" /var/tmp
+    sed -i 's|user.*=.*|user = '"$php_user"'|g' "$conf_dir"/*/www.conf
+    sed -i 's|group.*=.*|group = '"$php_user"'|g' "$conf_dir"/*/www.conf
+    chown -Rf "$php_user" "$conf_dir" "$data_dir/logs/php" /var/tmp
   else
     echo "php can not be found"
     [ -f "$www_dir/info.php" ] && echo "PHP support is not enabled" >"$www_dir/info.php"

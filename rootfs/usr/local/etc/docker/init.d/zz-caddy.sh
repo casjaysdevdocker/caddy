@@ -52,13 +52,23 @@ caddy_bin="$(type -P 'caddy' || type -P 'Caddy')"
 # use this function to update config files - IE: change port
 __update_conf_files() {
   echo "Initializing caddy web server in $conf_dir"
-  [ -d "$etc_dir" ] || mkdir -p "$etc_dir" "$conf_dir"
-  [ -d "$conf_dir" ] && cp -Rf "$conf_dir/." "$etc_dir/" || cp -Rf "$etc_dir/." "$conf_dir/"
+  # Seed /config/caddy from /etc/caddy on first start (copy only)
+  __init_service_conf "$conf_dir" "$etc_dir"
+  # Symlink /etc/caddy -> /config/caddy so /etc always reflects user config
+  if [ ! -L "$etc_dir" ]; then
+    rm -rf "$etc_dir"
+    ln -sf "$conf_dir" "$etc_dir"
+  fi
   #
   [ -d "/data/logs/caddy" ] || mkdir -p "/data/logs/caddy"
   chmod -Rf 777 "/data/logs/caddy"
   #
+  # Seed web root from baked-in share on first start
+  local share_htdocs="/usr/local/share/caddy/htdocs"
   [ -d "$www_dir" ] || mkdir -p "$www_dir"
+  if [ -d "$share_htdocs" ] && __is_dir_empty "$www_dir"; then
+    cp -Rf "$share_htdocs/." "$www_dir/"
+  fi
   [ -d "$www_dir/www/health" ] || mkdir -p "$www_dir/www/health"
   [ -f "$www_dir/www/health/index.txt" ] || echo 'ok' >"$www_dir/www/health/index.txt"
   [ -f "$www_dir/www/health/index.json" ] || echo '{ "status": "ok" }' >"$www_dir/www/health/index.json"

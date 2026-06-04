@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version           :  202408270903-git
+##@Version           :  202606041215-git
 # @@Author           :  CasjaysDev
 # @@Contact          :  CasjaysDev <docker-admin@casjaysdev.pro>
 # @@License          :  MIT
@@ -57,28 +57,25 @@ if [ -d "/tmp/etc" ]; then
     if [ -d "$config" ]; then
       mkdir -p "/etc/$name"
       copy "$config/." "/etc/$name/"
-      mkdir -p "/usr/local/share/template-files/config/$name"
-      copy "$config/." "/usr/local/share/template-files/config/$name/"
     else
       copy "$config" "/etc/$name"
-      copy "$config" "/usr/local/share/template-files/config/$name"
     fi
   done
 fi
 unset config
-if [ -d "/tmp/data" ]; then
-  for data in "/tmp/data"/*; do
-    name="$(basename -- "$data")"
-    echo "Installing $data to /usr/local/share/template-files/data"
-    if [ -d "$data" ]; then
-      mkdir -p "/usr/local/share/template-files/data/$name"
-      copy "$data/." "/usr/local/share/template-files/data/$name/"
+if [ -d "/tmp/usr" ]; then
+  for usrpath in "/tmp/usr"/*; do
+    name="$(basename -- "$usrpath")"
+    echo "Installing $usrpath to /usr/$name"
+    if [ -d "$usrpath" ]; then
+      mkdir -p "/usr/$name"
+      copy "$usrpath/." "/usr/$name/"
     else
-      copy "$data" "/usr/local/share/template-files/data/$name"
+      copy "$usrpath" "/usr/$name"
     fi
   done
 fi
-unset data
+unset usrpath
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main script
 
