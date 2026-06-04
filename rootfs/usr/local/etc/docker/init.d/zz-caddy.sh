@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
-SCRIPT_NAME="$(basename "$0" 2>/dev/null)"
+SCRIPT_NAME="${0##*/}"
 [ "$DEBUGGER" = "on" ] && echo "Enabling debugging" && set -o pipefail -x$DEBUGGER_OPTIONS || set -o pipefail
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export PATH="/usr/local/etc/docker/bin:/usr/local/bin:/usr/bin:/usr/sbin:/bin:/sbin"
@@ -23,11 +23,16 @@ done
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute command variables
-WORKDIR=""                                        # set working directory
-SERVICE_UID="0"                                   # set the user id
-SERVICE_USER="root"                               # execute command as another user
-SERVICE_PORT=""                                   # port which service is listening on
-EXEC_CMD_BIN="caddy"                              # command to execute
+# Working directory for the service process
+WORKDIR=""
+# User ID to run service as
+SERVICE_UID="0"
+# Execute command as this user
+SERVICE_USER="root"
+# Port the service listens on
+SERVICE_PORT=""
+# Binary to execute
+EXEC_CMD_BIN="caddy"
 # Function to exit appropriately based on context
 __script_exit() {
   local exit_code="${1:-0}"
@@ -40,8 +45,10 @@ __script_exit() {
   fi
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-EXEC_CMD_ARGS="run --config /etc/caddy/Caddyfile" # command arguments
-PRE_EXEC_MESSAGE=""                               # Show message before execute
+# Arguments to pass to caddy
+EXEC_CMD_ARGS="run --config /etc/caddy/Caddyfile"
+# Optional message to display before executing the service
+PRE_EXEC_MESSAGE=""
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Other variables that are needed
 etc_dir="/etc/caddy"
@@ -56,20 +63,20 @@ __update_conf_files() {
   __init_service_conf "$conf_dir" "$etc_dir"
   # Symlink /etc/caddy -> /config/caddy so /etc always reflects user config
   if [ ! -L "$etc_dir" ]; then
-    rm -rf "$etc_dir"
-    ln -sf "$conf_dir" "$etc_dir"
+    \rm -rf "$etc_dir"
+    \ln -sf "$conf_dir" "$etc_dir"
   fi
   #
-  [ -d "/data/logs/caddy" ] || mkdir -p "/data/logs/caddy"
-  chmod -Rf 777 "/data/logs/caddy"
+  [ -d "/data/logs/caddy" ] || \mkdir -p "/data/logs/caddy"
+  \chmod -Rf 777 "/data/logs/caddy"
   #
   # Seed web root from baked-in share on first start
   local share_htdocs="/usr/local/share/caddy/htdocs"
-  [ -d "$www_dir" ] || mkdir -p "$www_dir"
+  [ -d "$www_dir" ] || \mkdir -p "$www_dir"
   if [ -d "$share_htdocs" ] && __is_dir_empty "$www_dir"; then
-    cp -Rf "$share_htdocs/." "$www_dir/"
+    \cp -Rf "$share_htdocs/." "$www_dir/"
   fi
-  [ -d "$www_dir/www/health" ] || mkdir -p "$www_dir/www/health"
+  [ -d "$www_dir/www/health" ] || \mkdir -p "$www_dir/www/health"
   [ -f "$www_dir/www/health/index.txt" ] || echo 'ok' >"$www_dir/www/health/index.txt"
   [ -f "$www_dir/www/health/index.json" ] || echo '{ "status": "ok" }' >"$www_dir/www/health/index.json"
   #

@@ -22,12 +22,18 @@ done
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute command variables
-WORKDIR=""                                                                              # set working directory
-SERVICE_UID="0"                                                                         # set the user id
-SERVICE_USER="daemon"                                                                   # execute command as another user
-SERVICE_PORT="9000"                                                                     # port which service is listening on
-EXEC_CMD_BIN="php-fpm"                                                                  # command to execute
-EXEC_CMD_ARGS="--allow-to-run-as-root --nodaemonize --fpm-config /etc/php/php-fpm.conf" # command arguments
+# Working directory for the service process
+WORKDIR=""
+# User ID to run service as
+SERVICE_UID="0"
+# Execute command as this user
+SERVICE_USER="daemon"
+# Port the service listens on
+SERVICE_PORT="9000"
+# Binary to execute
+EXEC_CMD_BIN="php-fpm"
+# Arguments to pass to php-fpm
+EXEC_CMD_ARGS="--allow-to-run-as-root --nodaemonize --fpm-config /etc/php/php-fpm.conf"
 # Function to exit appropriately based on context
 __script_exit() {
   local exit_code="${1:-0}"
@@ -40,7 +46,8 @@ __script_exit() {
   fi
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PRE_EXEC_MESSAGE=""                                                                     # Show message before execute
+# Optional message to display before executing the service
+PRE_EXEC_MESSAGE=""
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Other variables that are needed
 data_dir="/data"
@@ -54,32 +61,32 @@ php_user="$SERVICE_USER"
 __update_conf_files() {
   echo "Initializing php in $conf_dir"
   if [ -n "$php_bin" ]; then
-    [ -d "/data/logs/php" ] || mkdir -p "/data/logs/php"
-    chmod -Rf 777 "$data_dir/logs/php" /var/tmp
+    [ -d "/data/logs/php" ] || \mkdir -p "/data/logs/php"
+    \chmod -Rf 777 "$data_dir/logs/php" /var/tmp
     # Seed /config/php from discovered php etc dir on first start (copy only)
     __init_service_conf "$conf_dir" "$etc_dir"
     # Symlink /etc/php -> /config/php so /etc always reflects user config
     if [ ! -L "$etc_dir" ]; then
-      rm -rf "$etc_dir"
-      ln -sf "$conf_dir" "$etc_dir"
+      \rm -rf "$etc_dir"
+      \ln -sf "$conf_dir" "$etc_dir"
     fi
     # Also normalize /etc/php if etc_dir differs (distros vary)
     if [ "$etc_dir" != "/etc/php" ] && [ ! -L "/etc/php" ]; then
-      ln -sf "$conf_dir" "/etc/php"
+      \ln -sf "$conf_dir" "/etc/php"
     fi
     # Flat /etc/ symlinks so /etc/php.ini, /etc/php-fpm.conf, /etc/php-fpm.d always exist
-    [ -L "/etc/php.ini" ] || [ -e "/etc/php.ini" ] || ln -sf "/etc/php/php.ini" "/etc/php.ini"
-    [ -L "/etc/php-fpm.conf" ] || [ -e "/etc/php-fpm.conf" ] || ln -sf "/etc/php/php-fpm.conf" "/etc/php-fpm.conf"
-    [ -L "/etc/php-fpm.d" ] || [ -e "/etc/php-fpm.d" ] || ln -sf "/etc/php/php-fpm.d" "/etc/php-fpm.d"
+    [ -L "/etc/php.ini" ] || [ -e "/etc/php.ini" ] || \ln -sf "/etc/php/php.ini" "/etc/php.ini"
+    [ -L "/etc/php-fpm.conf" ] || [ -e "/etc/php-fpm.conf" ] || \ln -sf "/etc/php/php-fpm.conf" "/etc/php-fpm.conf"
+    [ -L "/etc/php-fpm.d" ] || [ -e "/etc/php-fpm.d" ] || \ln -sf "/etc/php/php-fpm.d" "/etc/php-fpm.d"
     #
     if [ -f "$www_dir/www/index.html" ] && [ -f "$www_dir/www/index.php" ]; then
-      rm -Rf "$www_dir/www/index.html"
+      \rm -Rf "$www_dir/www/index.html"
     fi
-    chmod -Rf 777 "/data/logs/php"
+    \chmod -Rf 777 "/data/logs/php"
     #
-    sed -i 's|user.*=.*|user = '"$php_user"'|g' "$conf_dir"/*/www.conf
-    sed -i 's|group.*=.*|group = '"$php_user"'|g' "$conf_dir"/*/www.conf
-    chown -Rf "$php_user" "$conf_dir" "$data_dir/logs/php" /var/tmp
+    \sed -i 's|user.*=.*|user = '"$php_user"'|g' "$conf_dir"/*/www.conf
+    \sed -i 's|group.*=.*|group = '"$php_user"'|g' "$conf_dir"/*/www.conf
+    \chown -Rf "$php_user" "$conf_dir" "$data_dir/logs/php" /var/tmp
   else
     echo "php can not be found"
     [ -f "$www_dir/info.php" ] && echo "PHP support is not enabled" >"$www_dir/info.php"
