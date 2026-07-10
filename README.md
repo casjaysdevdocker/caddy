@@ -19,8 +19,8 @@ dockermgr update caddy
 ## Install and run container
   
 ```shell
-dockerHome="/var/lib/srv/$USER/docker/casjaysdevdocker/caddy/caddy/latest/rootfs"
-mkdir -p "/var/lib/srv/$USER/docker/caddy/rootfs"
+dockerHome="/srv/$USER/docker/casjaysdevdocker/caddy/caddy/latest/rootfs"
+mkdir -p "/srv/$USER/docker/caddy/rootfs"
 git clone "https://github.com/dockermgr/caddy" "$HOME/.local/share/CasjaysDev/dockermgr/caddy"
 cp -Rfva "$HOME/.local/share/CasjaysDev/dockermgr/caddy/rootfs/." "$dockerHome/"
 docker run -d \
@@ -47,8 +47,8 @@ services:
       - TZ=America/New_York
       - HOSTNAME=caddy
     volumes:
-      - "/var/lib/srv/$USER/docker/casjaysdevdocker/caddy/caddy/latest/rootfs/data:/data:z"
-      - "/var/lib/srv/$USER/docker/casjaysdevdocker/caddy/caddy/latest/rootfs/config:/config:z"
+      - "/srv/$USER/docker/casjaysdevdocker/caddy/caddy/latest/rootfs/data:/data:z"
+      - "/srv/$USER/docker/casjaysdevdocker/caddy/caddy/latest/rootfs/config:/config:z"
     ports:
       - 80:80
     restart: always
